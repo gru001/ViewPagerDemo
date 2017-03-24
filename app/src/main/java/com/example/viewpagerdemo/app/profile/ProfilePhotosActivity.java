@@ -4,6 +4,7 @@ import android.animation.ArgbEvaluator;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -28,14 +29,43 @@ import butterknife.ButterKnife;
  */
 
 public class ProfilePhotosActivity extends AppCompatActivity implements ProfileContract.View, TimelineAdapter.ItemClickListener {
+    private static final String TAG = ProfilePhotosActivity.class.getSimpleName();
     @BindView(R.id.view_pager) ViewPager vpgrProfiles;
     @BindView(R.id.progress_bar) ProgressBar mProgressBar;
     @BindView(R.id.recl_timeline) RecyclerView reclTimeline;
 
+    /**
+     * profile pager adapter
+     */
     private ProfilePagerAdapter mPagerAdapter;
+    /**
+     * Used for pager item color animation interpolation between no to ARGB
+     */
     private final ArgbEvaluator mArgbEvaluator = new ArgbEvaluator();
+    /**
+     * Timeline adapter (adapter horizontal recyler view)
+     */
     private TimelineAdapter mAdapter;
+    /**
+     * Presenter instance of Profile
+     */
     private ProfilePresenter mPresenter;
+    /**
+     * Used for scroll position
+     */
+    private LinearLayoutManager mLayoutManager;
+    /**
+     * Scroll timer
+     */
+    private Handler mScrollHandler;
+    /**
+     * manages scroll count
+     */
+    private int mScrollCount = 0;
+    /**
+     * manages pager item count
+     */
+    private int mPageCount = 0;
 
     /**
      * Factory method to get start Intent of {@link ProfilePhotosActivity}
@@ -57,6 +87,7 @@ public class ProfilePhotosActivity extends AppCompatActivity implements ProfileC
 
         setupPager();
         setupRecycler();
+        setupHandler();
 
         mPresenter.getUsers();
     }
@@ -66,7 +97,8 @@ public class ProfilePhotosActivity extends AppCompatActivity implements ProfileC
         mAdapter = new TimelineAdapter(this);
         reclTimeline.setAdapter(mAdapter);
         reclTimeline.setHasFixedSize(true);
-        reclTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
+        mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        reclTimeline.setLayoutManager(mLayoutManager);
     }
 
     private void setupPager() {
@@ -90,6 +122,10 @@ public class ProfilePhotosActivity extends AppCompatActivity implements ProfileC
         vpgrProfiles.setCurrentItem(0);
     }
 
+    private void setupHandler() {
+        mScrollHandler = new Handler();
+    }
+
     private void initialize() {
         addIntroScreen(ProfilePagerFragment.newInstance(getString(R.string.title_image1)),
                 ContextCompat.getColor(this, R.color.material_blue));
@@ -108,11 +144,26 @@ public class ProfilePhotosActivity extends AppCompatActivity implements ProfileC
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mScrollHandler.postDelayed(mScrollRunnable, 5*1000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mScrollHandler.removeCallbacks(mScrollRunnable);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         vpgrProfiles.removeOnPageChangeListener(mOnPageChangeListener);
     }
 
+    /**
+     * Page chane listener for view pager
+     */
     private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -130,6 +181,38 @@ public class ProfilePhotosActivity extends AppCompatActivity implements ProfileC
 
         @Override
         public void onPageScrollStateChanged(int state) {}
+    };
+
+    /**
+     * job for handler to scroll reaction from recycler view
+     */
+    private Runnable mScrollRunnable = new Runnable() {
+        @Override
+        public void run() {
+            // get first visible item from recycler view
+            int firstVisiblePosition = mLayoutManager.findFirstVisibleItemPosition();
+            // get last visible item from recycler view
+            int lastVisiblePosition = mLayoutManager.findLastVisibleItemPosition();
+            // increase scroll count till end of item size
+            if(firstVisiblePosition >= 0 && lastVisiblePosition != 14){
+                mScrollCount++;
+                int scrollPosition = firstVisiblePosition + 4;
+                mLayoutManager.scrollToPosition(scrollPosition);
+            }
+            else { // reset all counters to start from beginning
+                mLayoutManager.scrollToPosition(0);
+                mScrollCount = 0;
+                mPageCount = 0;
+                vpgrProfiles.setCurrentItem(0);
+            }
+            // set pager item according current item visible
+            if ((mScrollCount % 4) == 0) {
+                mPageCount++;
+                vpgrProfiles.setCurrentItem(mPageCount);
+            }
+            // start timer again
+            mScrollHandler.postDelayed(mScrollRunnable,5*1000);
+        }
     };
 
     @Override

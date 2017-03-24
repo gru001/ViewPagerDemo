@@ -2,7 +2,6 @@ package com.example.viewpagerdemo.app.profile;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +30,6 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
     }
 
     public void setUsers(List<Reaction> usersList) {
-        Log.i(TAG,"getItemCount()--> "+usersList.size());
         this.mUsersList.clear();
         this.mUsersList.addAll(usersList);
         notifyDataSetChanged();
@@ -50,7 +48,6 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
     @Override
     public void onBindViewHolder(TimelineViewHolder holder, int position) {
         final Reaction mUsers = mUsersList.get(position);
-        Log.i(TAG, "onBindViewHolder: "+mUsers.getUserProfilePicUrl());
         final Context context = holder.imgProfilePic.getContext();
         Glide.with(ViewPagerDemoApplication.getInstance()).load(mUsers.getUserProfilePicUrl())
                 .bitmapTransform(new CropCircleTransformation(ViewPagerDemoApplication.getInstance()))
@@ -61,7 +58,6 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
 
     @Override
     public int getItemCount() {
-        Log.i(TAG,"getItemCount()--> "+mUsersList.size());
         return mUsersList.size();
     }
 
