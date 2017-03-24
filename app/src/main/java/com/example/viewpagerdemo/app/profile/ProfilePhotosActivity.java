@@ -7,8 +7,16 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.example.viewpagerdemo.app.AppConstants;
 import com.example.viewpagerdemo.app.R;
+import com.example.viewpagerdemo.app.profile.data.ProfileRepository;
+import com.example.viewpagerdemo.app.profile.models.UserResponseModel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,11 +27,15 @@ import butterknife.ButterKnife;
  * @author pranit(gru001)
  */
 
-public class ProfilePhotosActivity extends AppCompatActivity{
+public class ProfilePhotosActivity extends AppCompatActivity implements ProfileContract.View, TimelineAdapter.ItemClickListener {
     @BindView(R.id.view_pager) ViewPager vpgrProfiles;
+    @BindView(R.id.progress_bar) ProgressBar mProgressBar;
+    @BindView(R.id.recl_timeline) RecyclerView reclTimeline;
 
     private ProfilePagerAdapter mPagerAdapter;
     private final ArgbEvaluator mArgbEvaluator = new ArgbEvaluator();
+    private TimelineAdapter mAdapter;
+    private ProfilePresenter mPresenter;
 
     /**
      * Factory method to get start Intent of {@link ProfilePhotosActivity}
@@ -41,7 +53,20 @@ public class ProfilePhotosActivity extends AppCompatActivity{
         setContentView(R.layout.activity_profile_photos);
         ButterKnife.bind(this);
 
+        new ProfilePresenter(ProfileRepository.getInstance(),this);
+
         setupPager();
+        setupRecycler();
+
+        mPresenter.getUsers();
+    }
+
+    private void setupRecycler() {
+        // Set the timeline adapter
+        mAdapter = new TimelineAdapter(this);
+        reclTimeline.setAdapter(mAdapter);
+        reclTimeline.setHasFixedSize(true);
+        reclTimeline.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, true));
     }
 
     private void setupPager() {
@@ -101,31 +126,42 @@ public class ProfilePhotosActivity extends AppCompatActivity{
         }
 
         @Override
-        public void onPageSelected(int position) {
-            // Check if the current ViewPager position is at the end
-            /*if (position == mPagerAdapter.getCount() - 1) {
-                // Show the "Done" button
-                mNextButton.showDoneButton(true);
-
-                // Hide the "Skip" button
-                mSkipButton.setVisibility(View.INVISIBLE);
-            } else {
-                // Check if the "Done" button is shown - if so, we should change to
-                // "Next" as we're no longer on the last page in the ViewPager
-                if (mNextButton.getButtonStyle() == NextDoneButton.STYLE_DONE) {
-                    mNextButton.showNextButton(true);
-                }
-
-                // Check if the "Skip" button isn't visible when it should be
-                if (mShowSkipButton && mSkipButton.getVisibility() != View.VISIBLE) {
-                    mSkipButton.setVisibility(View.VISIBLE);
-                }
-            }*/
-
-//            setProgressSelection(position);
-        }
+        public void onPageSelected(int position) {}
 
         @Override
         public void onPageScrollStateChanged(int state) {}
     };
+
+    @Override
+    public void setPresenter(ProfilePresenter presenter) {
+        mPresenter = presenter;
+    }
+
+    @Override
+    public void setLoadingIndicator(boolean active) {
+        if(active){
+            mProgressBar.setVisibility(View.VISIBLE);
+        }else{
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void showError() {
+        Toast.makeText(this,"Something went wrong.", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showUsers(UserResponseModel response) {
+        Toast.makeText(this,response.getMessage(),Toast.LENGTH_SHORT).show();
+        if(response.getSuccess() == AppConstants.SUCCESS) {
+            mAdapter.setUsers(response.getReactions());
+            reclTimeline.setVerticalScrollbarPosition(0);
+        }
+    }
+
+    @Override
+    public void onItemClick(int pos) {
+
+    }
 }

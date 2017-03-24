@@ -6,12 +6,12 @@ ext {
             design             : "com.android.support:design:$supportLibraryVersion",
             recyclerView       : "com.android.support:recyclerview-v7:$supportLibraryVersion",
             glide              : 'com.github.bumptech.glide:glide:3.7.0',
-            timber             : 'com.jakewharton.timber:timber:4.5.0',
             jUnit              : 'junit:junit:4.12',
             butterKnife        : 'com.jakewharton:butterknife:8.4.0',
             butterKnifeCompiler: 'com.jakewharton:butterknife-compiler:8.4.0',
             espressoCore       : "com.android.support.test.espresso:espresso-core:$espressoVersion",
             espressIntents     : "com.android.support.test.espresso:espresso-intents:$espressoVersion",
-            supportV4          : "com.android.support:support-v4:$supportLibraryVersion"
+            supportV4          : "com.android.support:support-v4:$supportLibraryVersion",
+            gson               : 'com.google.code.gson:gson:2.8.0'
     ]
 }

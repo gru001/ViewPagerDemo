@@ -35,8 +35,8 @@ dependencies {
     compile dependencies.design
     compile dependencies.glide
     compile dependencies.butterKnife
-    compile dependencies.timber
     compile dependencies.supportV4
+    compile dependencies.gson
 
     annotationProcessor dependencies.butterKnifeCompiler
 
