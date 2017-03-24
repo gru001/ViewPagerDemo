@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <!--common color codes-->
+    <color name="white">#FFF</color>
+    <color name="black">#000</color>
+
+    <!--material colors-->
+    <color name="material_indigo">#3F51B5</color>
+    <color name="material_blue">#2196F3</color>
+    <color name="material_deep_purple">#673AB7</color>
+    <color name="material_orange">#FF9800</color>
+    <color name="material_green">#4CAF50</color>
+    <color name="material_blue_grey">#607D8B</color>
+</resources>
