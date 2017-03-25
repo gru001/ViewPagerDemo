@@ -49,11 +49,16 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.Timeli
     public void onBindViewHolder(TimelineViewHolder holder, int position) {
         final Reaction mUsers = mUsersList.get(position);
         final Context context = holder.imgProfilePic.getContext();
-        Glide.with(ViewPagerDemoApplication.getInstance()).load(mUsers.getUserProfilePicUrl())
+        Glide.with(context).load(mUsers.getUserProfilePicUrl())
                 .bitmapTransform(new CropCircleTransformation(ViewPagerDemoApplication.getInstance()))
                 .placeholder(R.mipmap.ic_launcher)
                 .error(R.mipmap.ic_launcher)
                 .into(holder.imgProfilePic);
+        if(position != 0 && position % 3 == 0 ){
+            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) holder.imgProfilePic.getLayoutParams();
+            params.height = 300;
+            params.width = 300;
+        }
     }
 
     @Override
